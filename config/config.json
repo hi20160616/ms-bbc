@@ -1,0 +1,9 @@
+{
+  "microservice":{
+    "title":"bbc",
+    "domain":"www.bbc.com",
+    "url":"http://www.bbc.com",
+    "addr":":10001",
+    "timeout":"1s"
+  }
+}
