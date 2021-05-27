@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-var address = "localhost" + config.Data.MS["addr"]
+var address = "localhost" + config.Data.MS.Addr
 
 func main() {
 	// Set up a connection to the server.

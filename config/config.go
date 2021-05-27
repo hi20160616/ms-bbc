@@ -8,15 +8,15 @@ import (
 )
 
 type configuration struct {
-	MS map[string]string `json:"microservice"`
+	MS MicroService `json:"microservice"`
 }
 
 type MicroService struct {
-	Title   string `json:"title"`
-	Domain  string `json:"domain"`
-	URL     string `json:"url"`
-	Addr    string `json:"addr"`
-	Timeout string `json:"timeout"`
+	Title   string   `json:"title"`
+	Domain  string   `json:"domain"`
+	URL     []string `json:"url"`
+	Addr    string   `json:"addr"`
+	Timeout string   `json:"timeout"`
 }
 
 var Data = &configuration{}

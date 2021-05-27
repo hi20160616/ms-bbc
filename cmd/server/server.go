@@ -26,7 +26,7 @@ func (s *server) Get(ctx context.Context, in *pb.GetArticleRequest) (*pb.Article
 }
 
 func main() {
-	lis, err := net.Listen("tcp", config.Data.MS["addr"])
+	lis, err := net.Listen("tcp", config.Data.MS.Addr)
 	if err != nil {
 		log.Printf("failed to listen: %v", err)
 	}
