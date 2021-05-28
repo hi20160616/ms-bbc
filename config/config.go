@@ -8,7 +8,9 @@ import (
 )
 
 type configuration struct {
-	MS MicroService `json:"microservice"`
+	MS       MicroService `json:"microservice"`
+	RootPath string
+	DBPath   string `json:"dbpath"`
 }
 
 type MicroService struct {
@@ -27,6 +29,7 @@ func load() error {
 		return err
 	}
 	root = "../" // for config test
+	Data.RootPath = root
 	f, err := os.ReadFile(filepath.Join(root, "config/config.json"))
 	if err != nil {
 		return err

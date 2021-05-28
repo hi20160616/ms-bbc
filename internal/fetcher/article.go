@@ -12,6 +12,7 @@ import (
 	"github.com/hi20160616/gears"
 	"github.com/hi20160616/ms-bbc/config"
 	"golang.org/x/net/html"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Article struct {
@@ -21,7 +22,7 @@ type Article struct {
 	WebsiteId     string
 	WebsiteDomain string
 	WebsiteTitle  string
-	UpdateTime    time.Time
+	UpdateTime    *timestamppb.Timestamp
 	u             *url.URL
 	raw           []byte
 	doc           *html.Node
@@ -36,14 +37,36 @@ var timeout = func() time.Duration {
 	return t
 }()
 
-func New(rawurl string) (a *Article) {
+func NewArticle() (a *Article) {
 	a.WebsiteDomain = config.Data.MS.Domain
 	a.WebsiteTitle = config.Data.MS.Title
 	a.WebsiteId = fmt.Sprintf("%x", md5.Sum([]byte(a.WebsiteDomain)))
 	return
 }
 
-func (a *Article) Get(rawurl string) (*Article, error) {
+// List get all articles from database
+func (a *Article) List() ([]*Article, error) {
+	return load()
+}
+
+// Get read database and return the data by rawurl.
+func (a *Article) Get(id string) (*Article, error) {
+	as, err := load()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, a := range as {
+		if a.Id == id {
+			return a, nil
+		}
+	}
+	return nil, fmt.Errorf("no article with id: %s", id)
+}
+
+// fetchArticle fetch article by rawurl
+// TODO: UpdateTime filter
+func (a *Article) fetchArticle(rawurl string) (*Article, error) {
 	var err error
 	a.u, err = url.Parse(rawurl)
 	if err != nil {
@@ -56,22 +79,23 @@ func (a *Article) Get(rawurl string) (*Article, error) {
 	}
 	// TODO: optimized partten
 	a.Id = fmt.Sprintf("%x", md5.Sum([]byte(rawurl)))
-	a.Title, err = a.getTitle()
+	a.Title, err = a.fetchTitle()
 	if err != nil {
 		return nil, err
 	}
-	a.UpdateTime, err = a.getUpdateTime()
+	a.UpdateTime, err = a.fetchUpdateTime()
 	if err != nil {
 		return nil, err
 	}
-	a.Content, err = a.getContent()
+	a.Content, err = a.fetchContent()
 	if err != nil {
 		return nil, err
 	}
 	return a, nil
+
 }
 
-func (a *Article) getTitle() (string, error) {
+func (a *Article) fetchTitle() (string, error) {
 	n := exhtml.ElementsByTag(a.doc, "title")
 	if n == nil {
 		return "", fmt.Errorf("getTitle error, there is no element <title>")
@@ -84,7 +108,7 @@ func (a *Article) getTitle() (string, error) {
 }
 
 // TODO: parseWithZone: youtube_web: render.go
-func (a *Article) getUpdateTime() (time.Time, error) {
+func (a *Article) fetchUpdateTime() (*timestamppb.Timestamp, error) {
 	metas := exhtml.MetasByName(a.doc, "article:modified_time")
 	cs := []string{}
 	for _, meta := range metas {
@@ -95,13 +119,17 @@ func (a *Article) getUpdateTime() (time.Time, error) {
 		}
 	}
 	if len(cs) <= 0 {
-		return time.Time{}, fmt.Errorf("bbc setData got nothing.")
+		return nil, fmt.Errorf("bbc setData got nothing.")
 	}
 	t := cs[0]
-	return time.Parse(time.RFC3339, t)
+	tt, err := time.Parse(time.RFC3339, t)
+	if err != nil {
+		return nil, err
+	}
+	return timestamppb.New(tt), nil
 }
 
-func (a *Article) getContent() (string, error) {
+func (a *Article) fetchContent() (string, error) {
 	body := ""
 	// Fetch content nodes
 	nodes := exhtml.ElementsByTag(a.doc, "main")
@@ -124,7 +152,7 @@ func (a *Article) getContent() (string, error) {
 
 	// Format content
 	body = strings.ReplaceAll(body, "span  \n", "")
-	h1 := a.UpdateTime.Format("# [02.01] [1504H] " + a.Title)
+	h1 := a.UpdateTime.AsTime().Format("# [02.01] [1504H] " + a.Title)
 	u, err := url.QueryUnescape(a.u.String())
 	if err != nil {
 		u = a.u.String() + "\n\nunescape url error:\n" + err.Error()

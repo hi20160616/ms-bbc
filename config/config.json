@@ -1,7 +1,5 @@
 {
-  "fetcher":{
-    "dbpath":"db" 
-  },
+  "dbpath":"db",
   "microservice":{
     "title":"bbc",
     "domain":"www.bbc.com",

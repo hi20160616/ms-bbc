@@ -9,5 +9,5 @@ func TestLoad(t *testing.T) {
 	if err := load(); err != nil {
 		t.Error(err)
 	}
-	fmt.Println(Data.MS.URL)
+	fmt.Println(Data)
 }
