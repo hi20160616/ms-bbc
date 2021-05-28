@@ -3,7 +3,7 @@
   "microservice":{
     "title":"bbc",
     "domain":"www.bbc.com",
-    "url":["http://www.bbc.com", "http://www.bbc.com/list"],
+    "url":["https://www.bbc.com/zhongwen/simp/topics/ck2l9z0em07t"],
     "addr":":10001",
     "timeout":"1s",
     "heartbeat":"5m"

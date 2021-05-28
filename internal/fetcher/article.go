@@ -37,11 +37,12 @@ var timeout = func() time.Duration {
 	return t
 }()
 
-func NewArticle() (a *Article) {
-	a.WebsiteDomain = config.Data.MS.Domain
-	a.WebsiteTitle = config.Data.MS.Title
-	a.WebsiteId = fmt.Sprintf("%x", md5.Sum([]byte(a.WebsiteDomain)))
-	return
+func NewArticle() *Article {
+	return &Article{
+		WebsiteDomain: config.Data.MS.Domain,
+		WebsiteTitle:  config.Data.MS.Title,
+		WebsiteId:     fmt.Sprintf("%x", md5.Sum([]byte(config.Data.MS.Domain))),
+	}
 }
 
 // List get all articles from database

@@ -21,4 +21,5 @@ protoc -I "./" -I "../../../" \
 go mod tidy
 ```
 
-
+# TODO
+- [ ] add filter to ignore news by UpdateTime

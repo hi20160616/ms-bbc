@@ -3,6 +3,7 @@ package fetcher
 import (
 	"net/url"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/hi20160616/exhtml"
@@ -21,6 +22,8 @@ func fetchLinks() ([]string, error) {
 		}
 		rt = append(rt, links...)
 	}
+	rt = linksFilter(rt, `.*?/zhongwen/simp/.*-\d*`)
+	kickOutLinksMatchPath(&rt, "institutional")
 	return rt, nil
 }
 
@@ -53,4 +56,27 @@ func getLinks(rawurl string) ([]string, error) {
 	} else {
 		return gears.StrSliceDeDupl(links), nil
 	}
+}
+
+// kickOutLinksMatchPath will kick out the links match the path,
+func kickOutLinksMatchPath(links *[]string, path string) {
+	tmp := []string{}
+	// path = "/" + url.QueryEscape(path) + "/"
+	// path = url.QueryEscape(path)
+	for _, link := range *links {
+		if !strings.Contains(link, path) {
+			tmp = append(tmp, link)
+		}
+	}
+	*links = tmp
+}
+
+// TODO: use point to impletement LinksFilter
+// linksFilter is support for SetLinks method
+func linksFilter(links []string, regex string) []string {
+	flinks := []string{}
+	re := regexp.MustCompile(regex)
+	s := strings.Join(links, "\n")
+	flinks = re.FindAllString(s, -1)
+	return flinks
 }

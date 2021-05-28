@@ -15,7 +15,7 @@ func storage(as []*Article) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(dbfile, data, os.FileMode(os.O_CREATE|os.O_RDWR))
+	return os.WriteFile(dbfile, data, 0755)
 }
 
 func load() (as []*Article, err error) {

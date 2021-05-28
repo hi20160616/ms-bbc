@@ -14,11 +14,12 @@ type configuration struct {
 }
 
 type MicroService struct {
-	Title   string   `json:"title"`
-	Domain  string   `json:"domain"`
-	URL     []string `json:"url"`
-	Addr    string   `json:"addr"`
-	Timeout string   `json:"timeout"`
+	Title     string   `json:"title"`
+	Domain    string   `json:"domain"`
+	URL       []string `json:"url"`
+	Addr      string   `json:"addr"`
+	Timeout   string   `json:"timeout"`
+	Heartbeat string   `json:"heartbeat"`
 }
 
 var Data = &configuration{}
@@ -28,7 +29,8 @@ func load() error {
 	if err != nil {
 		return err
 	}
-	root = "../" // for config test
+	// root = "../" // for config test
+	root = "../../" // for fetcher test
 	Data.RootPath = root
 	f, err := os.ReadFile(filepath.Join(root, "config/config.json"))
 	if err != nil {
