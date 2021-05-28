@@ -2,68 +2,74 @@ package server
 
 import (
 	"context"
+	"errors"
 	"log"
-	"net"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
-	pb "github.com/hi20160616/fetchnews-api/proto/v1"
-	"github.com/hi20160616/ms-bbc/config"
-	"github.com/hi20160616/ms-bbc/internal/fetcher"
-	"google.golang.org/grpc"
+	"github.com/hi20160616/ms-bbc/internal/job"
+	"github.com/hi20160616/ms-bbc/internal/server"
+	"golang.org/x/sync/errgroup"
 )
 
 func main() {
-	lis, err := net.Listen("tcp", config.Data.MS.Addr)
-	if err != nil {
-		log.Printf("failed to listen: %v", err)
-	}
-	s := grpc.NewServer()
-	pb.RegisterFetchNewsServer(s, &server{})
-	if err := s.Serve(lis); err != nil {
-		log.Printf("failed to serve: %v", err)
-	}
-}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	defer func(ctx context.Context) {
+		// Do not make the application hang when it is shutdown.
+		ctx, cancel = context.WithTimeout(ctx, time.Second*5)
+		defer cancel()
+		if err := server.Stop(ctx); err != nil {
+			panic(err)
+		}
+	}(ctx)
 
-type server struct {
-	pb.UnimplementedFetchNewsServer
-}
+	g, ctx := errgroup.WithContext(ctx)
+	// MS
+	g.Go(func() error {
+		return server.Start(ctx)
+	})
+	g.Go(func() error {
+		<-ctx.Done() // wait for stop signal
+		return server.Stop(ctx)
+	})
+	if err := g.Wait(); err != nil {
+		log.Printf("service stopped.")
+		return
+	}
 
-func (s *server) List(ctx context.Context, in *pb.ListArticlesRequest) (*pb.ListArticlesResponse, error) {
-	log.Printf("Received: %v", in.GetPageSize())
-	a := fetcher.NewArticle()
-	as, err := a.List()
-	if err != nil {
-		return nil, err
+	// Job
+	g.Go(func() error {
+		return job.Crawl()
+	})
+	g.Go(func() error {
+		<-ctx.Done() // wait for stop signal
+		// TODO: return job.Stop()
+		return nil
+	})
+	if err := g.Wait(); err != nil {
+		log.Printf("job stopped.")
+		return
 	}
-	resp := &pb.ListArticlesResponse{}
-	for _, a := range as {
-		resp.Articles = append(resp.Articles, &pb.Article{
-			Id:            a.Id,
-			Title:         a.Title,
-			Content:       a.Content,
-			WebsiteId:     a.WebsiteId,
-			WebsiteTitle:  a.WebsiteTitle,
-			WebsiteDomain: a.WebsiteDomain,
-			UpdateTime:    a.UpdateTime,
-		})
-	}
-	return resp, nil
-}
 
-func (s *server) Get(ctx context.Context, in *pb.GetArticleRequest) (*pb.Article, error) {
-	log.Printf("Id: %v", in.Id)
-	// Got article via json reading
-	a := fetcher.NewArticle()
-	a, err := a.Get(in.Id)
-	if err != nil {
-		return nil, err
+	// Elegent stop
+	c := make(chan os.Signal, 1)
+	sigs := []os.Signal{syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT}
+	signal.Notify(c, sigs...)
+	g.Go(func() error {
+		for {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-c:
+				return server.Stop(ctx)
+			}
+		}
+	})
+	if err := g.Wait(); err != nil && !errors.Is(err, context.Canceled) {
+		log.Printf("signal caught: %s ready to quit...", err)
+		return
 	}
-	return &pb.Article{
-		Id:            a.Id,
-		Title:         a.Title,
-		Content:       a.Content,
-		WebsiteId:     a.WebsiteId,
-		WebsiteTitle:  a.WebsiteTitle,
-		WebsiteDomain: a.WebsiteDomain,
-		UpdateTime:    a.UpdateTime,
-	}, nil
 }
