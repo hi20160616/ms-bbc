@@ -43,12 +43,12 @@ func TestFetchUpdateTime(t *testing.T) {
 	var err error
 	for _, tc := range tests {
 		a := NewArticle()
-		a.u, err = url.Parse(tc.url)
+		a.U, err = url.Parse(tc.url)
 		if err != nil {
 			t.Error(err)
 		}
 		// Dail
-		a.raw, a.doc, err = exhtml.GetRawAndDoc(a.u, timeout)
+		a.raw, a.doc, err = exhtml.GetRawAndDoc(a.U, timeout)
 		if err != nil {
 			t.Error(err)
 		}

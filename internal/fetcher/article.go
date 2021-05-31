@@ -24,7 +24,7 @@ type Article struct {
 	WebsiteDomain string
 	WebsiteTitle  string
 	UpdateTime    *timestamppb.Timestamp
-	u             *url.URL
+	U             *url.URL
 	raw           []byte
 	doc           *html.Node
 }
@@ -63,18 +63,18 @@ func (a *Article) Get(id string) (*Article, error) {
 			return a, nil
 		}
 	}
-	return nil, fmt.Errorf("no article with id: %s", id)
+	return nil, fmt.Errorf("no article with id: %s, url: %s", id, a.U.String())
 }
 
 // fetchArticle fetch article by rawurl
 func (a *Article) fetchArticle(rawurl string) (*Article, error) {
 	var err error
-	a.u, err = url.Parse(rawurl)
+	a.U, err = url.Parse(rawurl)
 	if err != nil {
 		return nil, err
 	}
 	// Dail
-	a.raw, a.doc, err = exhtml.GetRawAndDoc(a.u, timeout)
+	a.raw, a.doc, err = exhtml.GetRawAndDoc(a.U, timeout)
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +162,7 @@ func (a *Article) fetchContent() (string, error) {
 	// Fetch content nodes
 	nodes := exhtml.ElementsByTag(a.doc, "main")
 	if len(nodes) == 0 {
-		return "", fmt.Errorf("err at 111L, ElementsByTag match nothing from: %s", a.u.String())
+		return "", fmt.Errorf("err at 111L, ElementsByTag match nothing from: %s", a.U.String())
 	}
 	articleDoc := nodes[0]
 	plist := exhtml.ElementsByTag(articleDoc, "h2", "p")
@@ -181,9 +181,9 @@ func (a *Article) fetchContent() (string, error) {
 	// Format content
 	body = strings.ReplaceAll(body, "span  \n", "")
 	h1 := shanghai(a.UpdateTime.AsTime()).Format("# [02.01] [1504H] " + a.Title)
-	u, err := url.QueryUnescape(a.u.String())
+	u, err := url.QueryUnescape(a.U.String())
 	if err != nil {
-		u = a.u.String() + "\n\nunescape url error:\n" + err.Error()
+		u = a.U.String() + "\n\nunescape url error:\n" + err.Error()
 	}
 	body = h1 + "\n\n" + body + "\n\n原地址：" + u
 	return body, nil
