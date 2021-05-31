@@ -40,9 +40,12 @@ func main() {
 		log.Fatalf("could not greet: %v", err)
 	}
 	log.Printf("Greeting: %s", article.Title)
-	articles, err := c.SearchArticles(ctx, &pb.SearchArticlesRequest{Keyword: "戴安娜"})
+	articles, err := c.SearchArticles(ctx, &pb.SearchArticlesRequest{Keyword: "戴安娜, 民主党"})
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
 	}
 	log.Printf("SearchArticles: %d", len(articles.Articles))
+	for _, a := range articles.Articles {
+		log.Println(a.Title)
+	}
 }

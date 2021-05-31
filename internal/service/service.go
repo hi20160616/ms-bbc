@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"strings"
 
 	pb "github.com/hi20160616/fetchnews-api/proto/v1"
 	"github.com/hi20160616/ms-bbc/internal/fetcher"
@@ -54,7 +55,7 @@ func (s *Server) GetArticle(ctx context.Context, in *pb.GetArticleRequest) (*pb.
 
 func (s *Server) SearchArticles(ctx context.Context, in *pb.SearchArticlesRequest) (*pb.SearchArticlesResponse, error) {
 	a := fetcher.NewArticle()
-	as, err := a.Search(in.Keyword)
+	as, err := a.Search(strings.Split(in.Keyword, ",")...)
 	if err != nil {
 		return nil, err
 	}

@@ -75,18 +75,19 @@ func (a *Article) Search(keyword ...string) ([]*Article, error) {
 	as2 := []*Article{}
 	for _, a := range as {
 		for _, v := range keyword {
+			v = strings.ToLower(strings.TrimSpace(v))
 			switch {
 			case a.Id == v:
 				as2 = append(as2, a)
 			case a.WebsiteId == v:
 				as2 = append(as2, a)
-			case strings.Contains(a.Title, v):
+			case strings.Contains(strings.ToLower(a.Title), v):
 				as2 = append(as2, a)
-			case strings.Contains(a.Content, v):
+			case strings.Contains(strings.ToLower(a.Content), v):
 				as2 = append(as2, a)
-			case strings.Contains(a.WebsiteDomain, v):
+			case strings.Contains(strings.ToLower(a.WebsiteDomain), v):
 				as2 = append(as2, a)
-			case strings.Contains(a.WebsiteTitle, v):
+			case strings.Contains(strings.ToLower(a.WebsiteTitle), v):
 				as2 = append(as2, a)
 			}
 		}
