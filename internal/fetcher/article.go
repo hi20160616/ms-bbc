@@ -11,6 +11,7 @@ import (
 	"github.com/hi20160616/exhtml"
 	"github.com/hi20160616/gears"
 	"github.com/hi20160616/ms-bbc/config"
+	"github.com/pkg/errors"
 	"golang.org/x/net/html"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -66,7 +67,6 @@ func (a *Article) Get(id string) (*Article, error) {
 }
 
 // fetchArticle fetch article by rawurl
-// TODO: UpdateTime filter
 func (a *Article) fetchArticle(rawurl string) (*Article, error) {
 	var err error
 	a.u, err = url.Parse(rawurl)
@@ -88,6 +88,11 @@ func (a *Article) fetchArticle(rawurl string) (*Article, error) {
 	if err != nil {
 		return nil, err
 	}
+	// filter work
+	if a, err = a.filter(3); errors.Is(err, ErrTimeOverDays) {
+		return nil, err
+	}
+	// content should be the last step to fetch
 	a.Content, err = a.fetchContent()
 	if err != nil {
 		return nil, err
@@ -108,7 +113,6 @@ func (a *Article) fetchTitle() (string, error) {
 	return title, nil
 }
 
-// TODO: parseWithZone: youtube_web: render.go
 func (a *Article) fetchUpdateTime() (*timestamppb.Timestamp, error) {
 	metas := exhtml.MetasByName(a.doc, "article:modified_time")
 	cs := []string{}
@@ -122,12 +126,31 @@ func (a *Article) fetchUpdateTime() (*timestamppb.Timestamp, error) {
 	if len(cs) <= 0 {
 		return nil, fmt.Errorf("bbc setData got nothing.")
 	}
-	t := cs[0]
-	tt, err := time.Parse(time.RFC3339, t)
+	t, err := time.Parse(time.RFC3339, cs[0])
 	if err != nil {
 		return nil, err
 	}
-	return timestamppb.New(tt), nil
+	loc := time.FixedZone("UTC", 8*60*60)
+	return timestamppb.New(t.In(loc)), nil
+}
+
+var ErrTimeOverDays error = errors.New("article update time out of range")
+
+// filter work for ignore articles by conditions
+func (a *Article) filter(days int) (*Article, error) {
+	// if article time out of days, return nil and `ErrTimeOverDays`
+	// param days means fetch news during days from befor now.
+	during := func(days int, ts *timestamppb.Timestamp) bool {
+		if time.Now().Day()-ts.AsTime().Day() <= days {
+			return true
+		}
+		return false
+	}
+	// if during return false rt nil, and error as ErrTimeOverDays
+	if !during(days, a.UpdateTime) {
+		return nil, ErrTimeOverDays
+	}
+	return a, nil
 }
 
 func (a *Article) fetchContent() (string, error) {
