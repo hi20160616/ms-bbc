@@ -1,4 +1,4 @@
-package server
+package main
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/hi20160616/ms-bbc/config"
 	"github.com/hi20160616/ms-bbc/internal/job"
 	"github.com/hi20160616/ms-bbc/internal/server"
 	"golang.org/x/sync/errgroup"
@@ -17,6 +18,7 @@ import (
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
 	defer func(ctx context.Context) {
 		// Do not make the application hang when it is shutdown.
 		ctx, cancel = context.WithTimeout(ctx, time.Second*5)
@@ -27,34 +29,28 @@ func main() {
 	}(ctx)
 
 	g, ctx := errgroup.WithContext(ctx)
+
 	// MS
 	g.Go(func() error {
+		log.Println("MS start at: ", config.Data.MS.Addr)
 		return server.Start(ctx)
 	})
 	g.Go(func() error {
 		<-ctx.Done() // wait for stop signal
 		return server.Stop(ctx)
 	})
-	if err := g.Wait(); err != nil {
-		log.Printf("service stopped.")
-		return
-	}
 
 	// Job
 	g.Go(func() error {
-		return job.Crawl()
+		log.Println("Job start.")
+		return job.Crawl(ctx)
 	})
 	g.Go(func() error {
 		<-ctx.Done() // wait for stop signal
-		// TODO: return job.Stop()
-		return nil
+		return job.Stop(ctx)
 	})
-	if err := g.Wait(); err != nil {
-		log.Printf("job stopped.")
-		return
-	}
 
-	// Elegent stop
+	// Elegant stop
 	c := make(chan os.Signal, 1)
 	sigs := []os.Signal{syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT}
 	signal.Notify(c, sigs...)
@@ -63,13 +59,23 @@ func main() {
 			select {
 			case <-ctx.Done():
 				return ctx.Err()
-			case <-c:
-				return server.Stop(ctx)
+			case sig := <-c:
+				log.Printf("signal caught: %s ready to quit...", sig.String())
+				if err := server.Stop(ctx); err != nil {
+					return err
+				}
+				if err := job.Stop(ctx); err != nil {
+					return err
+				}
+				os.Exit(0)
 			}
 		}
 	})
-	if err := g.Wait(); err != nil && !errors.Is(err, context.Canceled) {
-		log.Printf("signal caught: %s ready to quit...", err)
-		return
+	if err := g.Wait(); err != nil {
+		if !errors.Is(err, context.Canceled) {
+			log.Printf("not canceled by context: %s", err)
+		} else {
+			log.Printf("%#v", err)
+		}
 	}
 }

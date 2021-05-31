@@ -30,7 +30,7 @@ func load() error {
 		return err
 	}
 	// root = "../" // for config test
-	root = "../../" // for fetcher test
+	// root = "../../" // for `internal/fetcher` test
 	Data.RootPath = root
 	f, err := os.ReadFile(filepath.Join(root, "config/config.json"))
 	if err != nil {
