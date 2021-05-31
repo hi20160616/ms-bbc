@@ -78,7 +78,6 @@ func (a *Article) fetchArticle(rawurl string) (*Article, error) {
 	if err != nil {
 		return nil, err
 	}
-	// TODO: optimized partten
 	a.Id = fmt.Sprintf("%x", md5.Sum([]byte(rawurl)))
 	a.Title, err = a.fetchTitle()
 	if err != nil {
@@ -130,8 +129,12 @@ func (a *Article) fetchUpdateTime() (*timestamppb.Timestamp, error) {
 	if err != nil {
 		return nil, err
 	}
+	return timestamppb.New(t), nil
+}
+
+func shanghai(t time.Time) time.Time {
 	loc := time.FixedZone("UTC", 8*60*60)
-	return timestamppb.New(t.In(loc)), nil
+	return t.In(loc)
 }
 
 var ErrTimeOverDays error = errors.New("article update time out of range")
@@ -141,7 +144,8 @@ func (a *Article) filter(days int) (*Article, error) {
 	// if article time out of days, return nil and `ErrTimeOverDays`
 	// param days means fetch news during days from befor now.
 	during := func(days int, ts *timestamppb.Timestamp) bool {
-		if time.Now().Day()-ts.AsTime().Day() <= days {
+		t := shanghai(ts.AsTime())
+		if time.Now().Day()-t.Day() <= days {
 			return true
 		}
 		return false
@@ -176,7 +180,7 @@ func (a *Article) fetchContent() (string, error) {
 
 	// Format content
 	body = strings.ReplaceAll(body, "span  \n", "")
-	h1 := a.UpdateTime.AsTime().Format("# [02.01] [1504H] " + a.Title)
+	h1 := shanghai(a.UpdateTime.AsTime()).Format("# [02.01] [1504H] " + a.Title)
 	u, err := url.QueryUnescape(a.u.String())
 	if err != nil {
 		u = a.u.String() + "\n\nunescape url error:\n" + err.Error()

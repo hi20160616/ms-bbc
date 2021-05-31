@@ -2,8 +2,10 @@ package fetcher
 
 import (
 	"fmt"
+	"net/url"
 	"testing"
 
+	"github.com/hi20160616/exhtml"
 	"github.com/pkg/errors"
 )
 
@@ -26,7 +28,37 @@ func TestFetchArticle(t *testing.T) {
 				fmt.Println("ignore pass test: ", tc.url)
 			}
 		} else {
-			fmt.Println("pass test: ", a.Title)
+			fmt.Println("pass test: ", a.Content)
 		}
 	}
+}
+
+func TestFetchUpdateTime(t *testing.T) {
+	tests := []struct {
+		url string
+		err error
+	}{
+		{"https://www.bbc.com/zhongwen/simp/uk-57264136", nil},
+	}
+	var err error
+	for _, tc := range tests {
+		a := NewArticle()
+		a.u, err = url.Parse(tc.url)
+		if err != nil {
+			t.Error(err)
+		}
+		// Dail
+		a.raw, a.doc, err = exhtml.GetRawAndDoc(a.u, timeout)
+		if err != nil {
+			t.Error(err)
+		}
+		tt, err := a.fetchUpdateTime()
+		if err != nil {
+			t.Error(err)
+		} else {
+			ttt := tt.AsTime()
+			fmt.Println(shanghai(ttt))
+		}
+	}
+
 }
