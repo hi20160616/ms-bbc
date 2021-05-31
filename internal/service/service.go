@@ -12,7 +12,7 @@ type Server struct {
 	pb.UnimplementedFetchNewsServer
 }
 
-func (s *Server) List(ctx context.Context, in *pb.ListArticlesRequest) (*pb.ListArticlesResponse, error) {
+func (s *Server) ListArticles(ctx context.Context, in *pb.ListArticlesRequest) (*pb.ListArticlesResponse, error) {
 	log.Printf("Received: %v", in.GetPageSize())
 	a := fetcher.NewArticle()
 	as, err := a.List()
@@ -34,7 +34,7 @@ func (s *Server) List(ctx context.Context, in *pb.ListArticlesRequest) (*pb.List
 	return resp, nil
 }
 
-func (s *Server) Get(ctx context.Context, in *pb.GetArticleRequest) (*pb.Article, error) {
+func (s *Server) GetArticle(ctx context.Context, in *pb.GetArticleRequest) (*pb.Article, error) {
 	log.Printf("Id: %v", in.Id)
 	// Got article via json reading
 	a := fetcher.NewArticle()

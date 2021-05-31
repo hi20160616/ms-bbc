@@ -1,4 +1,4 @@
-package client
+package main
 
 import (
 	"context"
@@ -23,9 +23,9 @@ func main() {
 	c := pb.NewFetchNewsClient(conn)
 
 	// Contact the server and print out its response.
-	name := "bbc_server"
+	articleId := "f8a3801262aea95b78403158c0b13758"
 	if len(os.Args) > 1 {
-		name = os.Args[1]
+		articleId = os.Args[1]
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
@@ -35,7 +35,7 @@ func main() {
 	}
 	log.Printf("Greeting: %s", r.GetArticles())
 	// r, err = c.GetArticle(ctx, &pb.GetArticleRequest{Id: name})
-	article, err := c.GetArticle(ctx, &pb.GetArticleRequest{Id: name})
+	article, err := c.GetArticle(ctx, &pb.GetArticleRequest{Id: articleId})
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
 	}
