@@ -40,4 +40,9 @@ func main() {
 		log.Fatalf("could not greet: %v", err)
 	}
 	log.Printf("Greeting: %s", article.Title)
+	articles, err := c.SearchArticles(ctx, &pb.SearchArticlesRequest{Keyword: "戴安娜"})
+	if err != nil {
+		log.Fatalf("could not greet: %v", err)
+	}
+	log.Printf("SearchArticles: %d", len(articles.Articles))
 }

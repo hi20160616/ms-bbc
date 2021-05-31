@@ -66,6 +66,34 @@ func (a *Article) Get(id string) (*Article, error) {
 	return nil, fmt.Errorf("no article with id: %s, url: %s", id, a.U.String())
 }
 
+func (a *Article) Search(keyword ...string) ([]*Article, error) {
+	as, err := load()
+	if err != nil {
+		return nil, err
+	}
+
+	as2 := []*Article{}
+	for _, a := range as {
+		for _, v := range keyword {
+			switch {
+			case a.Id == v:
+				as2 = append(as2, a)
+			case a.WebsiteId == v:
+				as2 = append(as2, a)
+			case strings.Contains(a.Title, v):
+				as2 = append(as2, a)
+			case strings.Contains(a.Content, v):
+				as2 = append(as2, a)
+			case strings.Contains(a.WebsiteDomain, v):
+				as2 = append(as2, a)
+			case strings.Contains(a.WebsiteTitle, v):
+				as2 = append(as2, a)
+			}
+		}
+	}
+	return as2, nil
+}
+
 // fetchArticle fetch article by rawurl
 func (a *Article) fetchArticle(rawurl string) (*Article, error) {
 	var err error
