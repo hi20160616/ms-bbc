@@ -22,4 +22,4 @@ go mod tidy
 ```
 
 # TODO
-- [ ] add filter to ignore news by UpdateTime
+- [X] add filter to ignore news by UpdateTime
