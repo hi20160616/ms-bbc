@@ -10,8 +10,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-var Done chan struct{} = make(chan struct{}, 1)
-
 func Crawl(ctx context.Context) error {
 	t, err := time.ParseDuration(config.Data.MS.Heartbeat)
 	if err != nil {
@@ -27,8 +25,6 @@ func Crawl(ctx context.Context) error {
 			}
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-Done:
-			ctx.Done()
 		}
 	}
 }
@@ -36,7 +32,6 @@ func Crawl(ctx context.Context) error {
 // Stop is nil now
 func Stop(ctx context.Context) error {
 	log.Println("Job gracefully stopping.")
-	Done <- struct{}{}
 	// return error can define here, so it will display on frontend
-	return nil
+	return ctx.Err()
 }
