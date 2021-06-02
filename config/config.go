@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 )
 
+var RootPath = ""
+
 type configuration struct {
 	MS       MicroService `json:"microservice"`
 	RootPath string
@@ -24,15 +26,17 @@ type MicroService struct {
 
 var Data = &configuration{}
 
-func load() error {
+func setRootPath() error {
 	root, err := os.Getwd()
 	if err != nil {
 		return err
 	}
-	// root = "../" // for config test
-	// root = "../../" // for `internal/fetcher` test
-	Data.RootPath = root
-	f, err := os.ReadFile(filepath.Join(root, "config/config.json"))
+	RootPath = root
+	return nil
+}
+
+func get() error {
+	f, err := os.ReadFile(filepath.Join(RootPath, "config/config.json"))
 	if err != nil {
 		return err
 	}
@@ -40,7 +44,16 @@ func load() error {
 }
 
 func init() {
-	if err := load(); err != nil {
-		log.Printf("config init error: %#v", err)
+	if err := setRootPath(); err != nil {
+		log.Printf("config init error: %v", err)
 	}
+	if err := get(); err != nil {
+		log.Printf("config get() error: %v", err)
+	}
+}
+
+// Reset is for test to reset RootPath and invoke get()
+func Reset(pwd string) error {
+	RootPath = pwd
+	return get()
 }

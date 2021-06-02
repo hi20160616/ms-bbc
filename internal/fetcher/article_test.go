@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/hi20160616/exhtml"
+	"github.com/hi20160616/ms-bbc/config"
 	"github.com/pkg/errors"
 )
 
@@ -41,6 +42,10 @@ func TestFetchUpdateTime(t *testing.T) {
 		{"https://www.bbc.com/zhongwen/simp/uk-57264136", nil},
 	}
 	var err error
+	if err := config.Reset("../../"); err != nil {
+		t.Error(err)
+	}
+
 	for _, tc := range tests {
 		a := NewArticle()
 		a.U, err = url.Parse(tc.url)

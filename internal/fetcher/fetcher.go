@@ -2,14 +2,17 @@ package fetcher
 
 import (
 	"context"
+	"log"
 )
 
 // Fetch fetch and storage all stuffs to `db/articles.json`
 func Fetch() error {
+	log.Println("Fetching ...")
 	as, err := fetch(context.Background())
 	if err != nil {
 		return err
 	}
+	log.Println("Done")
 	return storage(as)
 }
 

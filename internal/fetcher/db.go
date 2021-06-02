@@ -2,6 +2,7 @@ package fetcher
 
 import (
 	"encoding/json"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -11,10 +12,12 @@ import (
 var dbfile = filepath.Join(config.Data.RootPath, config.Data.DBPath, "articles.json")
 
 func storage(as []*Article) error {
+	log.Println("Storage ...")
 	data, err := json.Marshal(as)
 	if err != nil {
 		return err
 	}
+	log.Println("Done")
 	return os.WriteFile(dbfile, data, 0755)
 }
 
