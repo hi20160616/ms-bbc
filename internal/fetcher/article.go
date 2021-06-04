@@ -198,9 +198,9 @@ func (a *Article) fetchContent() (string, error) {
 	for _, v := range plist {
 		if v.FirstChild != nil {
 			if v.Parent.FirstChild.Data == "h2" {
-				body += fmt.Sprintf("\n** %s **  \n", v.FirstChild.Data)
+				body += fmt.Sprintf("\n**%s**  \n", v.FirstChild.Data)
 			} else if v.FirstChild.Data == "b" {
-				body += fmt.Sprintf("\n** %s **  \n", v.FirstChild.FirstChild.Data)
+				body += fmt.Sprintf("\n**%s**  \n", v.FirstChild.FirstChild.Data)
 			} else {
 				body += v.FirstChild.Data + "  \n"
 			}
@@ -209,11 +209,19 @@ func (a *Article) fetchContent() (string, error) {
 
 	// Format content
 	body = strings.ReplaceAll(body, "span  \n", "")
-	h1 := shanghai(a.UpdateTime.AsTime()).Format("# [02.01] [1504H] " + a.Title)
+	title := "# " + a.Title + "\n\n"
+	lastupdate := shanghai(a.UpdateTime.AsTime()).Format("LastUpdate: [02.01] [1504H]")
+	webTitle := fmt.Sprintf(" @ [%s](/list/%[1]s): [%[2]s](http://%[2]s)", a.WebsiteTitle, a.WebsiteDomain)
 	u, err := url.QueryUnescape(a.U.String())
 	if err != nil {
 		u = a.U.String() + "\n\nunescape url error:\n" + err.Error()
 	}
-	body = h1 + "\n\n" + body + "\n\n原地址：" + u
+
+	body = title +
+		lastupdate +
+		webTitle + "\n\n" +
+		"---\n" +
+		body + "\n\n" +
+		"原地址：" + fmt.Sprintf("[%s](%[1]s)", u)
 	return body, nil
 }
