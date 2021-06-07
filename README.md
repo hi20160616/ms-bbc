@@ -23,3 +23,4 @@ go mod tidy
 
 # TODO
 - [X] add filter to ignore news by UpdateTime
+- [X] display ms title on server running.
