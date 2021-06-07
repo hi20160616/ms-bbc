@@ -7,11 +7,11 @@ import (
 	"time"
 
 	pb "github.com/hi20160616/fetchnews-api/proto/v1"
-	"github.com/hi20160616/ms-bbc/config"
+	"github.com/hi20160616/ms-bbc/configs"
 	"google.golang.org/grpc"
 )
 
-var address = "localhost" + config.Data.MS.Addr
+var address = "localhost" + configs.Data.MS.Addr
 
 func main() {
 	// Set up a connection to the server.

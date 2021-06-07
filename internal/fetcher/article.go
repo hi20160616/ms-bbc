@@ -10,7 +10,7 @@ import (
 
 	"github.com/hi20160616/exhtml"
 	"github.com/hi20160616/gears"
-	"github.com/hi20160616/ms-bbc/config"
+	"github.com/hi20160616/ms-bbc/configs"
 	"github.com/pkg/errors"
 	"golang.org/x/net/html"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -30,7 +30,7 @@ type Article struct {
 }
 
 var timeout = func() time.Duration {
-	t, err := time.ParseDuration(config.Data.MS.Timeout)
+	t, err := time.ParseDuration(configs.Data.MS.Timeout)
 	if err != nil {
 		log.Printf("timeout init error: %v", err)
 		return time.Duration(1 * time.Minute)
@@ -40,9 +40,9 @@ var timeout = func() time.Duration {
 
 func NewArticle() *Article {
 	return &Article{
-		WebsiteDomain: config.Data.MS.Domain,
-		WebsiteTitle:  config.Data.MS.Title,
-		WebsiteId:     fmt.Sprintf("%x", md5.Sum([]byte(config.Data.MS.Domain))),
+		WebsiteDomain: configs.Data.MS.Domain,
+		WebsiteTitle:  configs.Data.MS.Title,
+		WebsiteId:     fmt.Sprintf("%x", md5.Sum([]byte(configs.Data.MS.Domain))),
 	}
 }
 
@@ -211,7 +211,7 @@ func (a *Article) fetchContent() (string, error) {
 	body = strings.ReplaceAll(body, "span  \n", "")
 	title := "# " + a.Title + "\n\n"
 	lastupdate := shanghai(a.UpdateTime.AsTime()).Format("LastUpdate: [02.01] [1504H]")
-	webTitle := fmt.Sprintf(" @ [%s](/list/%[1]s): [%[2]s](http://%[2]s)", a.WebsiteTitle, a.WebsiteDomain)
+	webTitle := fmt.Sprintf(" @ [%s](/list/?v=%[1]s): [%[2]s](http://%[2]s)", a.WebsiteTitle, a.WebsiteDomain)
 	u, err := url.QueryUnescape(a.U.String())
 	if err != nil {
 		u = a.U.String() + "\n\nunescape url error:\n" + err.Error()

@@ -8,7 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/hi20160616/ms-bbc/config"
+	"github.com/hi20160616/ms-bbc/configs"
 	"github.com/hi20160616/ms-bbc/internal/job"
 	"github.com/hi20160616/ms-bbc/internal/server"
 	"golang.org/x/sync/errgroup"
@@ -22,7 +22,7 @@ func main() {
 
 	// MS
 	g.Go(func() error {
-		log.Println("MS start at: ", config.Data.MS.Addr)
+		log.Println("MS start at: ", configs.Data.MS.Addr)
 		return server.Start(ctx)
 	})
 	g.Go(func() error {

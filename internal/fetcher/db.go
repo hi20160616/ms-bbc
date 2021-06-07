@@ -6,10 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/hi20160616/ms-bbc/config"
+	"github.com/hi20160616/ms-bbc/configs"
 )
 
-var dbfile = filepath.Join(config.Data.RootPath, config.Data.DBPath, "articles.json")
+var dbfile = filepath.Join(configs.Data.RootPath, configs.Data.DBPath, "articles.json")
 
 func storage(as []*Article) error {
 	log.Println("Storage ...")

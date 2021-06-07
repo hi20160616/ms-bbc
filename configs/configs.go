@@ -1,4 +1,4 @@
-package config
+package configs
 
 import (
 	"encoding/json"
@@ -36,7 +36,7 @@ func setRootPath() error {
 }
 
 func get() error {
-	f, err := os.ReadFile(filepath.Join(RootPath, "config/config.json"))
+	f, err := os.ReadFile(filepath.Join(RootPath, "configs/configs.json"))
 	if err != nil {
 		return err
 	}

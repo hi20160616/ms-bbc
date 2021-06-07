@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/hi20160616/exhtml"
-	"github.com/hi20160616/ms-bbc/config"
+	"github.com/hi20160616/ms-bbc/configs"
 	"github.com/pkg/errors"
 )
 
@@ -40,9 +40,10 @@ func TestFetchUpdateTime(t *testing.T) {
 		err error
 	}{
 		{"https://www.bbc.com/zhongwen/simp/uk-57264136", nil},
+		{"https://www.bbc.com/zhongwen/simp/world-57341255", nil},
 	}
 	var err error
-	if err := config.Reset("../../"); err != nil {
+	if err := configs.Reset("../../"); err != nil {
 		t.Error(err)
 	}
 

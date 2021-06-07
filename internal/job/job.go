@@ -5,13 +5,13 @@ import (
 	"log"
 	"time"
 
-	"github.com/hi20160616/ms-bbc/config"
+	"github.com/hi20160616/ms-bbc/configs"
 	"github.com/hi20160616/ms-bbc/internal/fetcher"
 	"github.com/pkg/errors"
 )
 
 func Crawl(ctx context.Context) error {
-	t, err := time.ParseDuration(config.Data.MS.Heartbeat)
+	t, err := time.ParseDuration(configs.Data.MS.Heartbeat)
 	if err != nil {
 		return err
 	}

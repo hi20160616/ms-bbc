@@ -2,6 +2,7 @@ package fetcher
 
 import (
 	"context"
+	"errors"
 	"log"
 )
 
@@ -30,10 +31,13 @@ func fetch(ctx context.Context) (as []*Article, err error) {
 			a := NewArticle()
 			a, err = a.fetchArticle(link)
 			if err != nil {
-				return nil, err
+				if !errors.Is(err, ErrTimeOverDays) {
+					log.Printf("fetch error: %v, link: %s", err, link)
+				}
+				err = nil
+				continue
 			}
 			as = append(as, a)
-
 		}
 	}
 	return

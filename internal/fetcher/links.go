@@ -8,14 +8,14 @@ import (
 
 	"github.com/hi20160616/exhtml"
 	"github.com/hi20160616/gears"
-	"github.com/hi20160616/ms-bbc/config"
+	"github.com/hi20160616/ms-bbc/configs"
 	"github.com/pkg/errors"
 )
 
 func fetchLinks() ([]string, error) {
 	rt := []string{}
 
-	for _, rawurl := range config.Data.MS.URL {
+	for _, rawurl := range configs.Data.MS.URL {
 		links, err := getLinks(rawurl)
 		if err != nil {
 			return nil, err

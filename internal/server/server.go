@@ -6,7 +6,7 @@ import (
 	"net"
 
 	pb "github.com/hi20160616/fetchnews-api/proto/v1"
-	"github.com/hi20160616/ms-bbc/config"
+	"github.com/hi20160616/ms-bbc/configs"
 	"github.com/hi20160616/ms-bbc/internal/service"
 	"google.golang.org/grpc"
 )
@@ -14,7 +14,7 @@ import (
 var s = grpc.NewServer()
 
 func Start(ctx context.Context) error {
-	lis, err := net.Listen("tcp", config.Data.MS.Addr)
+	lis, err := net.Listen("tcp", configs.Data.MS.Addr)
 	if err != nil {
 		return err
 	}

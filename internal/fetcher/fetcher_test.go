@@ -3,11 +3,11 @@ package fetcher
 import (
 	"testing"
 
-	"github.com/hi20160616/ms-bbc/config"
+	"github.com/hi20160616/ms-bbc/configs"
 )
 
 func TestFetch(t *testing.T) {
-	if err := config.Reset("../../"); err != nil {
+	if err := configs.Reset("../../"); err != nil {
 		t.Error(err)
 	}
 
