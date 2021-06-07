@@ -4,16 +4,18 @@ import (
 	"context"
 	"errors"
 	"log"
+
+	"github.com/hi20160616/ms-bbc/configs"
 )
 
 // Fetch fetch and storage all stuffs to `db/articles.json`
 func Fetch() error {
-	log.Println("Fetching ...")
+	defer log.Printf("[%s] Done.", configs.Data.MS.Title)
+	log.Printf("[%s] Fetching ...", configs.Data.MS.Title)
 	as, err := fetch(context.Background())
 	if err != nil {
 		return err
 	}
-	log.Println("Done")
 	return storage(as)
 }
 
@@ -32,7 +34,8 @@ func fetch(ctx context.Context) (as []*Article, err error) {
 			a, err = a.fetchArticle(link)
 			if err != nil {
 				if !errors.Is(err, ErrTimeOverDays) {
-					log.Printf("fetch error: %v, link: %s", err, link)
+					log.Printf("[%s] fetch error: %v, link: %s",
+						configs.Data.MS.Title, err, link)
 				}
 				err = nil
 				continue

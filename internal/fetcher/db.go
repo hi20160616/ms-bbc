@@ -6,19 +6,27 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/hi20160616/gears"
 	"github.com/hi20160616/ms-bbc/configs"
+	"github.com/pkg/errors"
 )
 
 var dbfile = filepath.Join(configs.Data.RootPath, configs.Data.DBPath, "articles.json")
 
 func storage(as []*Article) error {
-	log.Println("Storage ...")
+	defer log.Printf("[%s] Done.", configs.Data.MS.Title)
+	log.Printf("[%s] Storage ...", configs.Data.MS.Title)
 	data, err := json.Marshal(as)
 	if err != nil {
-		return err
+		return errors.WithMessagef(err, "[%s] storage marshal error:",
+			configs.Data.MS.Title)
 	}
-	log.Println("Done")
-	return os.WriteFile(dbfile, data, 0755)
+	gears.MakeDirAll(filepath.Join(configs.Data.RootPath, configs.Data.DBPath))
+	if err := os.WriteFile(dbfile, data, 0755); err != nil {
+		return errors.WithMessagef(err, "[%s] storage WriteFile error:",
+			configs.Data.MS.Title)
+	}
+	return nil
 }
 
 func load() (as []*Article, err error) {

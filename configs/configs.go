@@ -7,8 +7,6 @@ import (
 	"path/filepath"
 )
 
-var RootPath = ""
-
 type configuration struct {
 	MS       MicroService `json:"microservice"`
 	RootPath string
@@ -31,18 +29,17 @@ func setRootPath() error {
 	if err != nil {
 		return err
 	}
-	RootPath = root
+	Data.RootPath = root
 	return nil
 }
 
 func get() error {
-	f, err := os.ReadFile(filepath.Join(RootPath, "configs/configs.json"))
+	f, err := os.ReadFile(filepath.Join(Data.RootPath, "configs/configs.json"))
 	if err != nil {
 		return err
 	}
 	return json.Unmarshal(f, Data)
 }
-
 func init() {
 	if err := setRootPath(); err != nil {
 		log.Printf("config init error: %v", err)
@@ -54,6 +51,6 @@ func init() {
 
 // Reset is for test to reset RootPath and invoke get()
 func Reset(pwd string) error {
-	RootPath = pwd
+	Data.RootPath = pwd
 	return get()
 }

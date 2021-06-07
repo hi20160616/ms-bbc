@@ -52,7 +52,8 @@ func getLinks(rawurl string) ([]string, error) {
 		return nil, err
 	}
 	if links, err := exhtml.ExtractLinks(u.String()); err != nil {
-		return nil, errors.WithMessage(err, "cannot extract links from "+rawurl)
+		return nil, errors.WithMessagef(err, "[%s] cannot extract links from ",
+			configs.Data.MS.Title, rawurl)
 	} else {
 		return gears.StrSliceDeDupl(links), nil
 	}

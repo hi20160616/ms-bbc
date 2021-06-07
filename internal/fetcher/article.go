@@ -32,7 +32,7 @@ type Article struct {
 var timeout = func() time.Duration {
 	t, err := time.ParseDuration(configs.Data.MS.Timeout)
 	if err != nil {
-		log.Printf("timeout init error: %v", err)
+		log.Printf("[%s] timeout init error: %v", configs.Data.MS.Title, err)
 		return time.Duration(1 * time.Minute)
 	}
 	return t
@@ -63,7 +63,8 @@ func (a *Article) Get(id string) (*Article, error) {
 			return a, nil
 		}
 	}
-	return nil, fmt.Errorf("no article with id: %s, url: %s", id, a.U.String())
+	return nil, fmt.Errorf("[%s] no article with id: %s, url: %s",
+		configs.Data.MS.Title, id, a.U.String())
 }
 
 func (a *Article) Search(keyword ...string) ([]*Article, error) {
@@ -132,7 +133,7 @@ func (a *Article) fetchArticle(rawurl string) (*Article, error) {
 func (a *Article) fetchTitle() (string, error) {
 	n := exhtml.ElementsByTag(a.doc, "title")
 	if n == nil {
-		return "", fmt.Errorf("getTitle error, there is no element <title>")
+		return "", fmt.Errorf("[%s] getTitle error, there is no element <title>", configs.Data.MS.Title)
 	}
 	title := n[0].FirstChild.Data
 	title = strings.ReplaceAll(title, " - BBC News 中文", "")
@@ -152,7 +153,7 @@ func (a *Article) fetchUpdateTime() (*timestamppb.Timestamp, error) {
 		}
 	}
 	if len(cs) <= 0 {
-		return nil, fmt.Errorf("bbc setData got nothing.")
+		return nil, fmt.Errorf("[%s] setData got nothing.", configs.Data.MS.Title)
 	}
 	t, err := time.Parse(time.RFC3339, cs[0])
 	if err != nil {
@@ -191,7 +192,8 @@ func (a *Article) fetchContent() (string, error) {
 	// Fetch content nodes
 	nodes := exhtml.ElementsByTag(a.doc, "main")
 	if len(nodes) == 0 {
-		return "", fmt.Errorf("err at 111L, ElementsByTag match nothing from: %s", a.U.String())
+		return "", fmt.Errorf("[%s] ElementsByTag match nothing from: %s",
+			configs.Data.MS.Title, a.U.String())
 	}
 	articleDoc := nodes[0]
 	plist := exhtml.ElementsByTag(articleDoc, "h2", "p")
