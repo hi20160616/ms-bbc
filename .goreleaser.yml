@@ -28,7 +28,7 @@ archives:
     files:
       - templates/*
       - configs/configs.json
-      - db/
+      - db/*
     replacements:
       darwin: Darwin
       linux: Linux
