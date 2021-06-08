@@ -24,3 +24,11 @@ go mod tidy
 # TODO
 - [X] add filter to ignore news by UpdateTime
 - [X] display ms title on server running.
+
+# Clone the project
+Just clone and run the command to replace all string in all files, that contains `dwnews`:
+```
+cd /path/to/your/folder
+sed -i 's/foo/bar/g' *
+```
+
