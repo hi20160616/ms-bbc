@@ -6,6 +6,6 @@
     "url":["https://www.bbc.com/zhongwen/simp/topics/ck2l9z0em07t"],
     "addr":":10001",
     "timeout":"1s",
-    "heartbeat":"5m"
+    "heartbeat":"24h"
   }
 }
