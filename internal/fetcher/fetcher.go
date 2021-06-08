@@ -10,7 +10,7 @@ import (
 
 // Fetch fetch and storage all stuffs to `db/articles.json`
 func Fetch() error {
-	defer log.Printf("[%s] Done.", configs.Data.MS.Title)
+	defer log.Printf("[%s] Fetch Done.", configs.Data.MS.Title)
 	log.Printf("[%s] Fetching ...", configs.Data.MS.Title)
 	as, err := fetch(context.Background())
 	if err != nil {
