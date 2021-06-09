@@ -50,7 +50,7 @@ grpc generate
 protoc -I "./" -I "../../../" \
     --go_out=. --go_opt=paths=source_relative \
     --go-grpc_out=. --go-grpc_opt=paths=source_relative \
-    api/fetchnews/cna/v1/fetchnews.proto
+    api/fetchnews/bbc/v1/fetchnews.proto
 ```
 go mod tidy
 ```
