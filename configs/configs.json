@@ -1,11 +1,6 @@
 {
-  "dbpath":"db",
-  "microservice":{
-    "title":"bbc",
-    "domain":"www.bbc.com",
-    "url":["https://www.bbc.com/zhongwen/simp/topics/ck2l9z0em07t"],
-    "addr":":10001",
-    "timeout":"1s",
-    "heartbeat":"24h"
-  }
+  "debug":false,
+  "verbose":false,
+  "gist": "https://gist.github.com/hi20160616/bfcb9f8521d17aa4f65cf14b79550e23/raw/configs1.json",
+  "dbpath":"db"
 }
